@@ -1,0 +1,26 @@
+name: Validate
+
+# Required check on main: the generator merges a run's pull request only when this passes.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - run: pip install "jsonschema>=4.23"
+
+      - name: Schemas, numbering, consistency, published files unchanged
+        run: python tools/validate.py --base "origin/${{ github.base_ref || 'main' }}"
